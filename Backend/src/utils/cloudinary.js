@@ -9,19 +9,20 @@ import fs from "fs"
 
     const uploadOnCloudinary = async(localFilePath)=>{
         try {
-            if(!localpath){
-                return null
-            }
-            else{
-                const response =await cloudinary.uploader.upload(localFilePath,{
-                    resource_type:auto,
+            if(!localFilePath) return null
+                const response = await cloudinary.uploader.upload(localFilePath,{
+                    resource_type:"auto",
                 })
-            }
-            console.log("File has been uploaded on Cloudinary",response.url)
+                fs.unlinkSync(localFilePath)
+                return response
 
         } catch (error) {
             //Unlink is used to remove temporary files as the upload operation got failed
-            fs.unlink(localFilePath)
+            fs.unlinkSync(localFilePath,(err)=>{
+                if(err){
+                    console.log("Error deleting local files :", err)
+                }
+            })
             return null
         }
     }
