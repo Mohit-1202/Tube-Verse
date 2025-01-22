@@ -13,12 +13,12 @@ import fs from "fs"
                 const response = await cloudinary.uploader.upload(localFilePath,{
                     resource_type:"auto",
                 })
-                fs.unlinkSync(localFilePath)
+                // fs.unlink(localFilePath)
                 return response
 
         } catch (error) {
             //Unlink is used to remove temporary files as the upload operation got failed
-            fs.unlinkSync(localFilePath,(err)=>{
+            fs.unlink(localFilePath,(err)=>{
                 if(err){
                     console.log("Error deleting local files :", err)
                 }

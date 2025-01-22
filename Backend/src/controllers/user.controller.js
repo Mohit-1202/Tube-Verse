@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 import {User} from "../models/user.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId)=>{
     try {
@@ -42,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
     if (!avatar) {
-        throw new ApiError(400, "Avatar file is required");
+        throw new ApiError(400, "Thw Avatar file is required");
     }
 
     const user = await User.create({
@@ -66,11 +67,11 @@ const loginUser= asyncHandler(async(req,res)=>{
     // take data from req body
     const {username,email,password}=req.body
     // username or email 
-    if(!username || !email){
+    if(!username && !email){
         throw new ApiError(400,"Username or Email id is required to login")
     }
     // check if user exists
-    const user = await User.findOne($or[{username},{email}])
+    const user = await User.findOne({$or:[{username},{email}]})
     if(!user){
         throw new ApiError(400,"User does not exists")
     }
@@ -114,6 +115,15 @@ const logoutUser= asyncHandler(async(req,res)=>{
             secure:true
         }
         return res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new ApiResponse(200,{},"User logged out"))
+})
+const refreshAccessToken = asyncHandler(async(req,res)=>{
+    const incomingRefreshToken= req.cookies.refreshToken || req.body.refreshToken
+    if(!incomingRefreshToken){
+        throw new ApiError(401,"Unauthorized request")
+    }
+    else{
+        jwt.verify()
+    }
 })
 export {
     registerUser,loginUser,logoutUser
