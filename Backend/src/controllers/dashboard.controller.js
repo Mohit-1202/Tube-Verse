@@ -1,16 +1,19 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import { Video } from "../models/video.model.js";
+import { Video } from "../models/video.models.js"
+import { User } from "../models/user.model.js"
 import { Subscription } from "../models/subscription.model.js";
 import { Like } from "../models/like.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {Tweet} from "../models/tweet.model.js"
+import {Comment} from "../models/comment.model.js"
 
 const getChannelStats = asyncHandler(async (req, res) => {
-  let { channel } = req.body;
+  let { channel } = req.body
   channel = await User.findOne({ username: channel });
   if (!channel) {
-    throw new ApiError(400, "Channel not found");
+    throw new ApiError(400, "Channel not available");
   }
   const channelId = new mongoose.Types.ObjectId(channel?._id);
   if (!isValidObjectId(channelId)) {
@@ -73,7 +76,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
       $match: {
         $and: [
          { likedBy: new mongoose.Types.ObjectId(channelId) },
-         {tweet:{$exist:true}}
+         {tweet:{$exists:true}}
         ],
       },
     },

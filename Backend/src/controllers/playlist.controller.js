@@ -10,7 +10,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     if(!(name, description)){
         throw new ApiError(401,"name and description is needed")
     }
-    const createPlaylist = await playList({
+    const createPlaylist = await Playlist.create({
         name:name,
         description:description,
         owner:new mongoose.Types.ObjectId(req.user._id)
@@ -38,7 +38,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
     if(!playlistId){
-        throw new ApiError(401,"Invalid Playlist Id")
+        throw new ApiError(400,"Invalid Playlist Id")
     }
     const findPlaylist = await Playlist.findById(playlistId)
     if(!findPlaylist){
@@ -47,28 +47,28 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200,playlistId,"Playlist found successfully"))
 })
 
-const addVideoToPlaylist = asyncHandler(async (req, res) => {
-    const {playlistId, videoId} = req.params
-    if (!(playlistId, videoId)){
-        throw new ApiError(401,"Invalid video or playlist Id")
-    }
-    const findPlaylist = await Playlist.findById(playlistId)
-    if(!findPlaylist){
-        throw new ApiError(401, "Invalid playlist")
-    }
-    if(!findPlaylist.owner.equals(req.user?._id)){
-        throw new ApiError(400,"Your are not authorized to update this playlist")
-    }
-    if(!findPlaylist.video.includes(videoId)){
-        throw new ApiError(400,"This video is already added in your playlist")
-    }
-    findPlaylist.video.push(videoId)
-    const videoAdded = await playList.save()
-    if(!videoAdded){
-        throw new ApiError(501,"Video is not added in the playlist please try again")
-    }
-    return res.status(200,videoAdded,"Video added successfully")
-})
+const addVideoToPlaylist = asyncHandler( async ( req, res ) =>
+    {
+        const { playlistId, videoId } = req.params
+        if ( !isValidObjectId( playlistId ) && !isValidObjectId( videoId ) ) { throw new ApiError( 400, "Invalid playlistId or videoId" ) }
+    
+
+        const findPlaylist = await Playlist.findById( playlistId )
+    
+        if ( !findPlaylist ) { throw new ApiError( 400, "Playlist not found!" ) }
+
+        if ( !findPlaylist.owner.equals( req.user?._id ) ) { throw new ApiError( 400, "You cant update this playlist!" ) }
+    
+        if ( findPlaylist.videos.includes( videoId ) ) { throw new ApiError( 400, "Video already exists in playlist You cant add this video in the playlist!" ) }
+    
+        findPlaylist.videos.push( videoId )
+        const videoAdded = await findPlaylist.save()
+    
+        if ( !videoAdded ) { throw new ApiError( 500, "Video is not added in the playlist please try again!" ) }
+    
+        return res.status( 200 )
+            .json( new ApiResponse( 200, videoAdded, "Video added in the playlist!" ) )
+    } )
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
