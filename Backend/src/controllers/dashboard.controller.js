@@ -30,7 +30,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
     },
     {
       $group: {
-        _id: "$Owner",
+        _id: "$owner",
         totalViews: { $sum: "$views" },
         totalVideos: { $sum: 1 },
       },

@@ -32,7 +32,6 @@ const getUserTweets= asyncHandler(async(req,res)=>{
     if(userTweet.length===0){
       throw new ApiResponse(200,userTweet,"No tweets available")
     }
-
     return res.status(200).json(new ApiResponse(200,userTweet,"Tweets found!"))
 })
 const updateTweet=asyncHandler(async(req,res)=>{

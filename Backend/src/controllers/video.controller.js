@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId, mongo } from "mongoose";
 import { Video } from "../models/video.models.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -9,149 +9,81 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 
-// const getAllVideos = asyncHandler(async (req, res) => {
-//     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-//     let pipeline = [
-//       {
-//         $match: {
-//           $and: [
-//             {
-//               $or: [
-//                 { title: { $regex: query, $options: "i" } },
-//                 { description: { $regex: query, $options: "i" } },
-//               ],
-//             },
-//             {owner: new mongoose.Types.ObjectId("6790f07d511e4ea75cd4a949")}
-//           ],
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "users",
-//           localField: "owner",
-//           foreignField: "_id",
-//           as: "owner",
-//           pipeline: [
-//             {
-//               $project: {
-//                 _id: 1,
-//                 fullName: 1,
-//                 username: 1,
-//                 avatar: "$avatar.url",
-//               },
-//             },
-//           ],
-//         },
-//       },
-//       {
-//         $addFields: {
-//           owner: { $first: "$owner" },
-//         },
-//       },
-//     //   {
-//     //     $sort: { [sortBy || "createdAt"]: sortType ? parseInt(sortType) : -1 },
-//     //   },
-//     ];
-    
-//     try {
-//       console.log("Converted userId: ", new mongoose.Types.ObjectId(userId));  // Debugging line
-  
-//       const options = {
-//         page: parseInt(page),
-//         limit: parseInt(limit),
-//         customLabels: {
-//           totalDocs: "totalVideos",
-//           docs: "videos",
-//         },
-//       };
-  
-//       const result = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
-  
-//       if (result?.videos?.length === 0) {
-//         return res.status(404).json(new ApiResponse(404, {}, "No Videos Found"));
-//       }
-  
-//       return res.status(200).json(new ApiResponse(200, result, "Videos fetched successfully"));
-//     } catch (error) {
-//       console.error("Error in video aggregation: ", error.message);  // Debugging line
-//       return res
-//         .status(500)
-//         .json(new ApiError(500, {}, "Internal server error in video aggregation"));
-//     }
-//   });
-  
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  
-    // Prepare the base match conditions
-    const matchConditions = [
-      { $or: [
-          { title: { $regex: query, $options: "i" } },
-          { description: { $regex: query, $options: "i" } },
-        ]
+  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+  let pipeline = [
+    {
+      $match: {
+        $or: [
+          { owner: new mongoose.Types.ObjectId(userId) },
+          {
+            $or: [
+              { title: { $regex: query, $options: "i" } },
+              { description: { $regex: query, $options: "i" } },
+            ],
+          },
+        ],
       },
-      { owner: new mongoose.Types.ObjectId("6790f07d511e4ea75cd4a949") },
-    ];
-  
-    // Build the pipeline
-    let pipeline = [
-      {
-        $match: {
-          $and: matchConditions,
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          as: "owner",
-          pipeline: [
-            {
-              $project: {
-                _id: 1,
-                fullName: 1,
-                username: 1,
-                avatar: "$avatar.url",
-              },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              fullName: 1,
+              username: 1,
+              avatar: "$avatar.url",
             },
-          ],
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner",
         },
       },
-      {
-        $addFields: {
-          owner: { $first: "$owner" },
-        },
+    },
+    {
+      $sort: { [sortBy || "createdAt"]: sortType ? parseInt(sortType) : -1 },
+    },
+  ];
+  try {
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      customLabels: {
+        totalDocs: "totalVideos",
+        docs: "videos",
       },
-      {
-        $sort: { createdAt: -1 }
-      }
-    ];
-  
-    try {
-      const options = {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        customLabels: {
-          totalDocs: "totalVideos",
-          docs: "videos",
-        },
-      };
-  
-      const result = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
-  
-      if (result?.videos?.length === 0) {
-        return res.status(404).json(new ApiResponse(404, {}, "No Videos Found"));
-      }
-  
-      return res.status(200).json(new ApiResponse(200, result, "Videos fetched successfully"));
-    } catch (error) {
-      console.error(error.message);
-      return res.status(500).json(new ApiError(500, {}, "Internal server error in video aggregation"));
+    };
+    const result = await Video.aggregatePaginate(
+      Video.aggregate(pipeline),
+      options
+    );
+    if (result?.videos?.length === 0) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, result, "Videos fetched successfully"));
     }
-  });
-  
-  
+    return res
+      .status(200)
+      .json(new ApiResponse(200, result, "Videos fetched successfully"));
+  } catch (error) {
+    console.error(error.message);
+    return res
+      .status(500)
+      .json(
+        new ApiError(500, {}, "Internal server error in video aggregation")
+      );
+  }
+});
 
 const publishAVideo = asyncHandler(async (req, res) => {
   try {
