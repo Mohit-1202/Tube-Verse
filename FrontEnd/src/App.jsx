@@ -1,25 +1,36 @@
-import './App.css'
-import Login from './Components/Login/Login'
-import AddVideo from './Components/Videos/AddVideo'
-import GetVideo from './Components/Videos/GetVideo';
-import VideoState from './Context/Videos/VideoState'
-import { BrowserRouter, Routes, Route } from "react-router";
+import './App.css';
+import VideoState from './Context/Videos/VideoState';
+import Navbar from './Components/Navbar/Navbar';
+import { BrowserRouter, useLocation } from "react-router-dom";
+import AppRoutes from './Routes/AppRoutes';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import { useEffect, useState } from 'react';
 
-function App() {
+const LayoutWithNavbar = () => {
+  const location = useLocation();
+  const [showNavbar, setShowNavbar] = useState(true);
+
+  useEffect(() => {
+    const hideNavbarOn = ['/login', '/register'];
+    setShowNavbar(!hideNavbarOn.includes(location.pathname));
+  }, [location]);
 
   return (
     <>
+      {showNavbar && <Navbar />}
+      <AppRoutes />
+    </>
+  );
+};
+
+function App() {
+  return (
     <VideoState>
       <BrowserRouter>
-      <Routes>
-      <Route exact path="/" element={<Login/>}/>
-      <Route exact path="/addvideo" element={<AddVideo/>}/>
-      <Route exact path="/allvideos" element={<GetVideo/>} />
-      </Routes>
+        <LayoutWithNavbar />
       </BrowserRouter>
-      </VideoState>
-    </>
-  )
+    </VideoState>
+  );
 }
 
-export default App
+export default App;

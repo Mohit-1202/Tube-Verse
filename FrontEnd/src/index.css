@@ -1,1 +1,21 @@
 @import "tailwindcss";
+@theme {
+    --breakpoint-start:320px;
+    --breakpoint-mobile-s:375px;
+    --breakpoint-mobile-l:425px;
+    --breakpoint-ipad:750px;
+    --breakpoint-mini:900px;
+    --breakpoint-laptop:1200px;
+    --breakpoint-lg:1400px;
+    --breakpoint-xl:1600px
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none; 
+  }
+  
