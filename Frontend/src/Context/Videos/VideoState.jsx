@@ -17,7 +17,7 @@ const VideoState = ({ children }) => {
 
   useEffect(() => {
     getVideos();
-  }, []);
+  },[] );
 
   return (
     <VideoContext.Provider value={{ videos, getVideos, uploadVideo }}>
