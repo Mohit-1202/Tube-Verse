@@ -1,11 +1,11 @@
 import './App.css';
-import VideoState from './Context/Videos/VideoState';
+import VideoState from './Context/Videos/VideoState.jsx';
 import Navbar from './Components/Navbar/Navbar';
 import { BrowserRouter, useLocation } from "react-router-dom";
 import AppRoutes from './Routes/AppRoutes';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useEffect, useState } from 'react';
-import UserState from './Context/User/UserState';
+import UserState from './Context/User/UserState.jsx';
 
 const LayoutWithNavbar = () => {
   const location = useLocation();
