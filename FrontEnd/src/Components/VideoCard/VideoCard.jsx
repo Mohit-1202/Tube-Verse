@@ -47,13 +47,13 @@ export default function VideoCard({ video, variant = "default" }) {
         {!isHorizontal && (
           <div className="first-section">
             <img
-              className="rounded-full w-10 h-10 mt-1 cursor-pointer"
+              className="rounded-full w-10 h-10 mt-3 cursor-pointer"
               src="https://newkgfindia.com/assets/users2.avif"
               alt="user avatar"
             />
           </div>
         )} 
-        <div className={`mid-section sm:px-3 px-0 flex-grow`}>
+        <div className={`mid-section sm:px-3 px-0 flex-grow mt-3 mobile-lg:ml-2 mini:ml-0`}>
         <Link to="/watch-video">
           <p className="text-base font-semibold text-white line-clamp-2 cursor-pointer">
             {title}
