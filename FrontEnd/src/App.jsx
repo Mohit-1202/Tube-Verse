@@ -5,6 +5,7 @@ import { BrowserRouter, useLocation } from "react-router-dom";
 import AppRoutes from './Routes/AppRoutes';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useEffect, useState } from 'react';
+import UserState from './Context/User/UserState';
 
 const LayoutWithNavbar = () => {
   const location = useLocation();
@@ -25,11 +26,13 @@ const LayoutWithNavbar = () => {
 
 function App() {
   return (
-    <VideoState>
-      <BrowserRouter>
-        <LayoutWithNavbar />
-      </BrowserRouter>
-    </VideoState>
+    <UserState>
+      <VideoState>
+        <BrowserRouter>
+          <LayoutWithNavbar />
+        </BrowserRouter>
+      </VideoState>
+    </UserState>
   );
 }
 

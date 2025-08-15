@@ -1,9 +1,32 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlay, } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import UserContext from "../Context/User/UserContext";
+
 
 const Loginpage = () => {
-    return (
+    const [usernameOrEmail, setUsernameOrEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+    const { loginUser } = useContext(UserContext);
+
+  const handleLogin = async () => {
+  const isEmail = usernameOrEmail.includes("@");
+  const username = isEmail ? "" : usernameOrEmail;
+  const email = isEmail ? usernameOrEmail : "";
+
+  const success = await loginUser(username, email, password);
+
+  if (success === true) {
+    navigate("/");
+  } else {
+    alert("Incorrect username or password. Please try again.");
+  }
+};
+
+  return (
         <div className="flex flex-col items-center justify-center min-h-screen">
             {/* Container */}
             <div className="flex items-center justify-center mb-6 ">
@@ -23,21 +46,29 @@ const Loginpage = () => {
                     <input
                         type="text"
                         placeholder="Username or Email"
-                        className=" w-full bg-transparent border border-white/50 rounded-md p-3 text-white placeholder-gray-300 focus:ring-[#FF9200]"
+                        value={usernameOrEmail}
+                        onChange={(e) => setUsernameOrEmail(e.target.value)}
+                        className="w-full bg-transparent border border-white/50 rounded-md p-3 text-white placeholder-gray-300 focus:ring-[#FF9200]"
                     />
+
                     <input
-                        type="text"
+                        type="password"
                         placeholder="Password"
-                        className=" w-full bg-transparent border border-white/50 rounded-md p-3 text-white placeholder-gray-300 focus:ring-[#FF9200]"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-transparent border border-white/50 rounded-md p-3 text-white placeholder-gray-300 focus:ring-[#FF9200]"
                     />
+
                 </div>
 
                 {/* Login Button */}
-                <Link to="/">
-                    <button className="bg-[#FF9200] text-black px-6 py-2 rounded-md font-semibold hover:brightness-110 self-end cursor-pointer mt-6">
-                        Login Now
-                    </button>
-                </Link>
+                <button
+                    onClick={handleLogin}
+                    className="bg-[#FF9200] text-black px-6 py-2 rounded-md font-semibold hover:brightness-110 self-end cursor-pointer mt-6"
+                >
+                    Login Now
+                </button>
+
                 {/* Register Text */}
                 <Link to="/register">
                     <p className=" mt-4 text-sm text-white hover:text-gray-200 hover:font-semibold ">
