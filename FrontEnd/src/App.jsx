@@ -6,6 +6,7 @@ import AppRoutes from './Routes/AppRoutes';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useEffect, useState } from 'react';
 import UserState from './Context/User/UserState.jsx';
+import LoaderState from './Context/Loader/LoaderState.jsx';
 
 const LayoutWithNavbar = () => {
   const location = useLocation();
@@ -26,6 +27,7 @@ const LayoutWithNavbar = () => {
 
 function App() {
   return (
+    <LoaderState>
     <UserState>
       <VideoState>
         <BrowserRouter>
@@ -33,6 +35,7 @@ function App() {
         </BrowserRouter>
       </VideoState>
     </UserState>
+    </LoaderState>
   );
 }
 
