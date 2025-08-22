@@ -1,14 +1,19 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-import { faBars, faCirclePlay, faMagnifyingGlass, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
+import { useContext, useEffect, useState } from "react";
+import { faBars, faCirclePlay, faMagnifyingGlass, faPlus, } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from '../Sidebar/Sidebar'
 import { Link } from "react-router";
+import UserContext from "../../Context/User/UserContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const toggleSidebar = () => setIsOpen(!isOpen);
+  const{user,userDetails} = useContext(UserContext)
+  useEffect(()=>{
+    userDetails()
+  },[])
   return (
     <div className={`Navbar flex start:p-2 start:mt-2 justify-between`}>
       <div className="Section-1 start:flex start:space-x-4 mini:space-x-6">
@@ -59,7 +64,7 @@ export default function Navbar() {
         </div>
         <div className="Section-3 flex space-x-[6px] tab:space-x-[20px]">
           <div className="create bg-[#FF9200] rounded-[50%] tab:w-[80px] tab:rounded-[8px] w-7 start:mt-[5px] text-center mini:pt-1" onClick={() => setIsCreateOpen(!isCreateOpen)}>
-            <p className=" hidden tab:inline font-semibold mr-2 text-[16px]  mt-[6px] text-[#030303] cursor-pointer">Create</p>
+            <p className="hidden tab:inline font-semibold mr-2 text-[16px]  mt-[6px] text-[#030303] cursor-pointer">Create</p>
             <FontAwesomeIcon className="start:text-[16px] mt-[6px] text-[#030303] cursor-pointer" icon={faPlus} />
             {isCreateOpen && (
               <div className="createMenu">
@@ -74,8 +79,11 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <div className="create bg-[#FF9200] rounded-[50%] mini:rounded-4xl w-7 start:mt-[5px] text-center tab:mr-2">
-            <Link to="/profile"><FontAwesomeIcon className="start:text-[16px] mt-[6px] text-[#030303] cursor-pointer" icon={faUser} /></Link>
+          <div className="create rounded-[50%] mini:rounded-4xl start:mt-[5px] text-center tab:mr-2">
+              <Link to="/profile">
+              {/* <FontAwesomeIcon className="start:text-[16px] mt-[6px] text-[#030303] cursor-pointer" icon={faUser} /> */}
+              <img className="mini:w-10 start:w-8" src={user?.avatar} alt="" />
+              </Link>
           </div>
         </div>
       </div>

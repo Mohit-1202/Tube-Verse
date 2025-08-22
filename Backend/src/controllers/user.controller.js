@@ -100,6 +100,7 @@ const loginUser= asyncHandler(async(req,res)=>{
     )
     )
 })
+
 const logoutUser= asyncHandler(async(req,res)=>{
     User.findByIdAndUpdate(req.user._id,
         {
@@ -118,6 +119,7 @@ const logoutUser= asyncHandler(async(req,res)=>{
         }
         return res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new ApiResponse(200,{},"User logged out"))
 })
+
 const refreshAccessToken = asyncHandler(async(req,res)=>{
     const incomingRefreshToken= req.cookies.refreshToken || req.body.refreshToken
     if(!incomingRefreshToken){
@@ -152,6 +154,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
        }
     }
 })
+
 const changeCurrentPassword=asyncHandler(async(req,res)=>{
 const {oldPassword ,newPassword}= req.body
 const user = await User.findById(req.user?._id)
@@ -165,9 +168,11 @@ if(!isPasswordCorrect){
     new ApiResponse(200,{},"Password changed successfully")
  )
 })
+
 const getCurrentUser = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,req.user,"Current user fetched successfully"))
 })
+
 const updateAccountDetails=asyncHandler(async(req,res)=>{
     const {fullName,email,username}=req.body
     const user = await User.findByIdAndUpdate(
@@ -183,6 +188,7 @@ const updateAccountDetails=asyncHandler(async(req,res)=>{
     ).select("-password")
     return res.status(200).json(new ApiResponse(200,user,"Account details updated successfully"))
 })
+
 const updateUserAvatar = asyncHandler(async(req,res)=>{
     const avatarLocalPath = req.file?.path
     if(!avatarLocalPath){
@@ -204,6 +210,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
     }).select("-password")
 return res.status(200).json(new ApiResponse(200,user,"Avatar Image updated successfully"))
 })
+
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
     const coverImageLocalPath = req.file?.path
     if(!coverImageLocalPath){
@@ -227,6 +234,7 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,user,"Cover Image updated successfully"))
 
 })
+
 const getUserChannelProfile = asyncHandler(async (req, res) => {
     const { username } = req.params;
 
@@ -329,6 +337,7 @@ const getUserWatchHistory = asyncHandler(async(req,res)=>{
     ])
     return res.status(200).json(new ApiResponse(200,user[0].watchHistory,"Watch history fetched successfully"))
 })
+
 export {
     registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar,updateUserCoverImage,getUserChannelProfile,getUserWatchHistory
 }

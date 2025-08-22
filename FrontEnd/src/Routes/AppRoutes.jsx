@@ -13,6 +13,8 @@ import Upload_Tweet_Page from "../Pages/Upload_Tweet_Page";
 import Full_Playlist_Page from "../Pages/Full_Playlist_Page";
 import Loginpage from "../Pages/Loginpage";
 import RegisterPage from "../Pages/Registerpage";
+import ProtectedRoute from "../Components/ProtectedRoute/ProtectedRoute";
+import Edit_Account_Page from "../Pages/Edit_Account_Page";
 
 
 export default function AppRoutes() {
@@ -21,6 +23,7 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/login" element={<Loginpage/>}/>
         <Route path="/register" element={<RegisterPage/>}/>
+        <Route element={<ProtectedRoute/>}>
         <Route path="/" element={<Homepage/>}/>
         <Route path="/profile" element={<Your_Channel_Page/> }/>
         <Route path="/your-videos" element={<Your_Video_Page/>}/>
@@ -35,6 +38,8 @@ export default function AppRoutes() {
         <Route path="/subscriptions" element={<Subscription_Page/>} />
         <Route path="/upload-video" element={<Upload_Video_Page/>} />
         <Route path="/upload-tweet" element={<Upload_Tweet_Page/>} />
+        <Route path="/edit-account" element={<Edit_Account_Page/>} />
+        </Route>
       </Routes>
     </div>
   )
