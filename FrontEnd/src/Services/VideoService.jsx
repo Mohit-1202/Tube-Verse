@@ -38,6 +38,7 @@ export const getVideos = async () => {
     }
 
     const data = await response.json();
+    console.log(data)
     return data.data.videos;
   } catch (error) {
     console.log("Error fetching data", error.message);
@@ -45,7 +46,7 @@ export const getVideos = async () => {
   }
 };
 
-export const uploadVideo = async (title, description, thumbnail, videoFile) => {
+export const uploadVideoService = async (title, description, thumbnail, videoFile) => {
   const formData = new FormData();
 
   formData.append("title", title);
@@ -72,9 +73,9 @@ export const uploadVideo = async (title, description, thumbnail, videoFile) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const json = await response.json();
-    console.log("Response:", json);
-    return json;
+    const data = await response.json();
+    console.log("Response:", data);
+    return data;
   } catch (error) {
     console.error("Fetch error:", error);
     return null;

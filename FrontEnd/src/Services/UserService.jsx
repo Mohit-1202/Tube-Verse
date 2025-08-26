@@ -128,7 +128,7 @@ export const UpdateAccount = async (fullName, email, username) => {
   const url = new URL(`${backendUrl}/users/update-account`);
   try {
     const response = await fetch(url, {
-      method: "PATCH",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ fullName, email, username }),

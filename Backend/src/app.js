@@ -7,8 +7,9 @@ dotenv.config();
 
 const app = express();
 
-
-const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || ["http://localhost:5173"];
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [
+  "http://localhost:5173",
+];
 
 app.use(
   cors({
@@ -20,15 +21,21 @@ app.use(
       }
     },
     credentials: true,
-    optionsSuccessStatus: 200,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
-
 
 import userRouter from "./routes/user.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
@@ -40,7 +47,7 @@ import playlistRouter from "./routes/playlist.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import likeRouter from "./routes/like.routes.js";
 
-// ✅ Setting Up Routes
+
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tweets", tweetRouter);
@@ -52,3 +59,4 @@ app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 
 export { app };
+

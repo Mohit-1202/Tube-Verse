@@ -9,7 +9,8 @@ export default function VideoCard({ video, variant = "default" }) {
     timestamp,
     thumbnail,
     duration,
-    description
+    description,
+    id
   } = video;
 
   const isHorizontal = variant === "horizontal";
@@ -18,7 +19,7 @@ export default function VideoCard({ video, variant = "default" }) {
     <div
       className={`video-container text-white rounded-xl p-2 w-full ${
         isHorizontal ? "sm:flex sm:gap-4" : ""
-      }`}
+      }`} key={id}
     >
       {/* Thumbnail */}
       <Link to="/watch-video">
