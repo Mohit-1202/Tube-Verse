@@ -9,6 +9,65 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 
+
+const getUserVideos = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10, sortBy = "createdAt", sortType = -1 } = req.query;
+
+  if (!req.user || !req.user._id) {
+    return res.status(401).json(new ApiError(401, "Unauthorized - No user found"));
+  }
+
+  try {
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      customLabels: {
+        totalDocs: "totalVideos",
+        docs: "videos",
+      },
+    };
+
+    const pipeline = [
+      {
+        $match: {
+          owner: new mongoose.Types.ObjectId(req.user._id),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+                username: 1,
+                avatar: "$avatar.url",
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          owner: { $first: "$owner" },
+        },
+      },
+      { $sort: { [sortBy]: parseInt(sortType) } },
+    ];
+
+    const result = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
+
+    return res.status(200).json(new ApiResponse(200, result, "User videos fetched successfully"));
+  } catch (error) {
+    console.error("Get user videos error:", error.message);
+    return res.status(500).json(new ApiError(500, "Internal server error fetching user videos"));
+  }
+});
+
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   let pipeline = [
@@ -82,6 +141,68 @@ const getAllVideos = asyncHandler(async (req, res) => {
       .json(
         new ApiError(500, {}, "Internal server error in video aggregation")
       );
+  }
+});
+
+const searchVideos = asyncHandler(async (req, res) => {
+  const { query = "", page = 1, limit = 10, sortBy = "createdAt", sortType = -1 } = req.query;
+
+  if (!query.trim()) {
+    return res.status(400).json(new ApiError(400, "Search query is required"));
+  }
+
+  try {
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      customLabels: {
+        totalDocs: "totalVideos",
+        docs: "videos",
+      },
+    };
+
+    const pipeline = [
+      {
+        $match: {
+          $or: [
+            { title: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } },
+          ],
+          isPublished: true, // Only show published videos in search
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+                username: 1,
+                avatar: "$avatar.url",
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          owner: { $first: "$owner" },
+        },
+      },
+      { $sort: { [sortBy]: parseInt(sortType) } },
+    ];
+
+    const result = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
+
+    return res.status(200).json(new ApiResponse(200, result, "Search results fetched successfully"));
+  } catch (error) {
+    console.error("Search videos error:", error.message);
+    return res.status(500).json(new ApiError(500, "Internal server error during search"));
   }
 });
 
@@ -261,7 +382,9 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 });
 
 export {
+  getUserVideos,
   getAllVideos,
+  searchVideos,
   publishAVideo,
   getVideoById,
   updateVideo,

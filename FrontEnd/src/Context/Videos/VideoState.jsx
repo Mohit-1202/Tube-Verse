@@ -1,52 +1,75 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import VideoContext from "./VideoContext";
-import { getVideos as fetchVideos, uploadVideoService } from "../../Services/VideoService"; 
+import { 
+  getVideosService, 
+  uploadVideoService,
+  getUserVideosService 
+} from "../../Services/VideoService"; 
 import LoaderContext from "../Loader/LoaderContext";
 
 const VideoState = ({ children }) => {
-  const [videos, setVideos] = useState([]);
-  const {startLoading,stopLoading} = useContext(LoaderContext)
-  const [yourVideo,setYourVideo] = useState([])
+  const [videos, setVideos] = useState([]);  
+  const [yourVideo, setYourVideo] = useState([]);
+  const { startLoading, stopLoading } = useContext(LoaderContext);
 
   const getVideos = async () => {
-    startLoading()
+    startLoading();
     try {
-      const data = await fetchVideos();
+      const data = await getVideosService();
       setVideos(data || []);
     } catch (error) {
       console.error("Error fetching videos:", error);
-    }finally{
-      stopLoading()
+      setVideos([]);
+    } finally {
+      stopLoading();
+    }
+  };
+
+  const getYourVideos = async () => {
+    startLoading();
+    try {
+      const data = await getUserVideosService();
+      setYourVideo(data || []);
+    } catch (error) {
+      console.error("Error fetching user videos:", error);
+      setYourVideo([]);
+    } finally {
+      stopLoading();
     }
   };
 
   const uploadVideo = async (title, description, thumbnail, videoFile) => {
-      startLoading()
+    startLoading();
     try {
-      const response = await uploadVideoService(title, description, thumbnail, videoFile)
-      if(response.success !== true){
-        console.log("Failed to upload video in video state")
-        return false
+      const response = await uploadVideoService(title, description, thumbnail, videoFile);
+
+      if (!response.success) {
+        console.log("Failed to upload video in VideoState");
+        return false;
       }
-      else{
-        setYourVideo(response.data.videos)
-        return true
-      }
+
+      setYourVideo((prev) => [response.data.video, ...prev]);
+      return true;
     } catch (error) {
-      console.log("Caught an error in uploading video in video state",error)
+      console.log("Error uploading video in VideoState:", error);
+      return false;
+    } finally {
+      stopLoading();
     }
-    finally{
-      stopLoading()
-    }
-  }
-  useEffect(() => {
-    getVideos();
-    uploadVideo()
-  },[] );
+  };
 
   return (
-    <VideoContext.Provider value={{ videos, getVideos, uploadVideo,yourVideo }}>
+    <VideoContext.Provider 
+      value={{ 
+        videos, 
+        yourVideo, 
+        getVideos, 
+        getYourVideos, 
+        uploadVideo 
+      }}
+    >
       {children}
     </VideoContext.Provider>
   );

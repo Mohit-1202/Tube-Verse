@@ -1,14 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Link } from "react-router-dom";
 import VideoCard from "../Components/VideoCard/VideoCard";
+import VideoSkeleton from "../Components/Skeletons/VideoSkeleton";
 import VideoContext from "../Context/Videos/VideoContext";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 export default function Your_Video_Page() {
-  const { videos, getVideos } = useContext(VideoContext);
+  const { yourVideo, getYourVideos } = useContext(VideoContext);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch videos on page load
   useEffect(() => {
-    getVideos();
+    const fetchUserVideos = async () => {
+      setLoading(true);
+      await getYourVideos();
+      setLoading(false);
+    };
+    fetchUserVideos();
   }, []);
 
   return (
@@ -21,7 +28,7 @@ export default function Your_Video_Page() {
               Your Account
             </button>
           </Link>
-          <Link>
+          <Link to="/manage-videos">
             <button className="bg-[#FF9200] text-[#030303] font-medium px-4 py-1 rounded-md cursor-pointer">
               Manage Videos
             </button>
@@ -29,14 +36,24 @@ export default function Your_Video_Page() {
         </div>
       </div>
 
-      {/* Render videos */}
-      <div className="grid grid-cols-1 mobile-lg:grid-cols-2 laptop:grid-cols-3 px-1">
-        {videos.length > 0 ? (
-          videos.map((video) => (
-            <VideoCard key={video._id} video={video} />
-          ))
+      {/* Grid container */}
+      <div className="grid grid-cols-1 mobile-lg:grid-cols-2 laptop:grid-cols-3 px-1 gap-4">
+        {/* Loading skeletons */}
+        {loading ? (
+          Array(6)
+            .fill(0)
+            .map((_, i) => <VideoSkeleton key={i} />)
+        ) : yourVideo.length > 0 ? (
+          yourVideo.map((video) => <VideoCard key={video._id} video={video} />)
         ) : (
-          <p className="text-white">No videos uploaded yet.</p>
+          <div className="col-span-full flex flex-col items-center justify-center text-gray-400 mt-10">
+            <p className="text-lg">You haven&apos;t uploaded any videos yet.</p>
+            <Link to="/upload-video">
+              <button className="mt-4 bg-[#FF9200] text-[#030303] font-medium px-4 py-2 rounded-md">
+                Upload Your First Video
+              </button>
+            </Link>
+          </div>
         )}
       </div>
     </>
