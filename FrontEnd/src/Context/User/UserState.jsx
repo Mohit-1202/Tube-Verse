@@ -33,10 +33,12 @@ const UserState = ({ children }) => {
       startLoading();
       const response = await loginService(username, email, password);
       console.log(response);
+      console.log(response.data)
 
       if (response?.data?.accessToken) {
         setUser(response.data.user);
         localStorage.setItem("token", response.data.accessToken);
+        console.log(response.data)
         return true;
       } else {
         return false;
@@ -49,24 +51,25 @@ const UserState = ({ children }) => {
     }
   };
 
-  const logoutUser = async () => {
-    try {
-      startLoading();
-      const response = await Logout();
-      if (!response.success === true) {
-        console.log("Faced some issue in logging out user in user state");
-        return false;
-      } else {
-        setUser(null);
-        return true;
-      }
-    } catch (error) {
-      console.log("Caught an error in managing logout user state", error);
+ const logoutUser = async () => {
+  try {
+    startLoading();
+    const response = await Logout();
+    if (!response.success) {   // fixed logic
+      console.log("Faced some issue in logging out user in user state");
       return false;
-    } finally {
-      stopLoading();
+    } else {
+      setUser(null);
+      return true;
     }
-  };
+  } catch (error) {
+    console.log("Caught an error in managing logout user state", error);
+    return false;
+  } finally {
+    stopLoading();
+  }
+};
+
 
   const refreshToken = async () => {
   };

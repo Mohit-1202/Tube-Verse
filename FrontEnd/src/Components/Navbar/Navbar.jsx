@@ -82,7 +82,7 @@ export default function Navbar() {
           <div className="create rounded-[50%] mini:rounded-4xl start:mt-[5px] text-center tab:mr-2">
               <Link to="/profile">
               {/* <FontAwesomeIcon className="start:text-[16px] mt-[6px] text-[#030303] cursor-pointer" icon={faUser} /> */}
-              <img className="mini:w-10 start:w-8" src={user?.avatar} alt="" />
+              <img className="mini:w-10 start:w-8 start:h-10 mini:h-10 rounded-[50%]" src={user?.avatar} alt="" />
               </Link>
           </div>
         </div>
