@@ -1,4 +1,4 @@
-import { ChangePassword, GetUserChannel, Login as loginService, Logout, Register as registerService, UpdateAccount, UpdateAvatar, UpdateCoverImage, UserDetails, WatchHistory } from "../../Services/UserService";
+import { ChangePassword, GetUserChannel, Login, Logout, Register as registerService, UpdateAccount, UpdateAvatar, UpdateCoverImage, UserDetails, WatchHistory } from "../../Services/UserService";
 import UserContext from "./UserContext";
 import { useState, useContext } from "react";
 import LoaderContext from "../Loader/LoaderContext";
@@ -28,28 +28,31 @@ const UserState = ({ children }) => {
     }
   };
 
-  const loginUser = async (username, email, password) => {
-    try {
-      startLoading();
-      const response = await loginService(username, email, password);
-      console.log(response);
-      console.log(response.data)
+const loginUser = async (username, email, password) => {
+  try {
+    startLoading();
 
-      if (response?.data?.accessToken) {
-        setUser(response.data.user);
-        localStorage.setItem("token", response.data.accessToken);
-        console.log(response.data)
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
+    setUser(null);
+    localStorage.removeItem("token");
+
+    const response = await Login(username, email, password);
+
+
+    if (response && response.data && response.data.accessToken) {
+      setUser(response.data.user);
+      localStorage.setItem("token", response.data.accessToken);
+      return true;
+    } else {
       return false;
-    } finally {
-      stopLoading();
     }
-  };
+  } catch (error) {
+    console.error("Login failed:", error);
+    return false;
+  } finally {
+    stopLoading();
+  }
+};
+
 
  const logoutUser = async () => {
   try {

@@ -28,24 +28,33 @@ export const Register = async (fullName, username, email, password, coverImage, 
 
 export const Login = async (username, email, password) => {
   const url = new URL(`${backendUrl}/users/login`);
+
   try {
+
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ username, email, password }),
       credentials: "include",
     });
+
+
     const data = await response.json();
+
     if (!response.ok) {
-      console.log("Login error:", data);
+      console.error("Login error:", data);
       return false;
     }
+
     return data;
   } catch (error) {
     console.error("Login request failed:", error);
     return false;
   }
 };
+
 
 export const Logout = async () => {
   const url = new URL(`${backendUrl}/users/logout`);
@@ -117,6 +126,7 @@ export const UserDetails = async () => {
       console.log("Caught an error in parsing data from response in user services");
       return false;
     }
+    console.log(data)
     return data;
   } catch (error) {
     console.log("Faced an error in services while trying to get user details", error);
