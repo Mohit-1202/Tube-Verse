@@ -52,13 +52,13 @@ export default function VideoCard({ video, variant = "default" }) {
       <div
         className={`video-info ${isHorizontal
             ? "sm:mt-0 mt-2 sm:flex sm:flex-col sm:justify-center"
-            : "flex"
+            : "flex gap-3 mt-3"
           }`}
       >
         {!isHorizontal && (
-          <div className="first-section">
+          <div className="first-section flex-shrink-0">
             <img
-              className="rounded-full w-10 h-10 mt-3 cursor-pointer"
+              className="rounded-full w-10 h-10 cursor-pointer"
               src={
                 owner?.avatar || video?.avatar || "https://newkgfindia.com/assets/users2.avif"
               }
@@ -68,7 +68,7 @@ export default function VideoCard({ video, variant = "default" }) {
         )}
 
         <div
-          className={`mid-section sm:px-3 px-0 flex-grow mt-3 mobile-lg:ml-2 mini:ml-0`}
+          className={`mid-section flex-grow ${isHorizontal ? "sm:px-3 px-0" : ""}`}
         >
           <Link to="/watch-video">
             <p className="text-base font-semibold text-white line-clamp-2 cursor-pointer">
@@ -81,10 +81,10 @@ export default function VideoCard({ video, variant = "default" }) {
               </p>
             )}
           </Link>
-          <p className="text-sm text-gray-400 cursor-pointer hover:text-white ">
+          <p className="text-sm text-gray-400 mt-1 cursor-pointer hover:text-white">
             {displayChannel}
           </p>
-          <div className="flex justify-between items-center text-sm text-gray-400">
+          <div className="flex justify-between items-center text-sm text-gray-400 mt-1">
             <p>{views || 0} Views</p>
             <p>{displayTimestamp}</p>
           </div>

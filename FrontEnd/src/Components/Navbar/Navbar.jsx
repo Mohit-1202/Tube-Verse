@@ -66,20 +66,34 @@ export default function Navbar() {
         </div>
         <div className="Section-3 flex space-x-[6px] tab:space-x-[20px] items-center">
           <div className="relative">
+           
             <div 
-              className="create bg-[#FF9200] rounded-full w-7 h-7 flex items-center justify-center tab:w-10 tab:h-10 cursor-pointer"
+              className="create bg-[#FF9200] rounded-full w-7 h-7 flex items-center justify-center tab:hidden cursor-pointer"
               onClick={() => setIsCreateOpen(!isCreateOpen)}
             >
               <FontAwesomeIcon className="text-[16px] text-[#030303]" icon={faPlus} />
             </div>
+
+            <div 
+              className="hidden tab:flex bg-[#FF9200] rounded-md px-3 py-2 cursor-pointer items-center space-x-1"
+              onClick={() => setIsCreateOpen(!isCreateOpen)}
+            >
+              <span className="font-semibold text-[16px] text-[#030303]">Create</span>
+              <FontAwesomeIcon className="text-[16px] text-[#030303]" icon={faPlus} />
+            </div>
+            
             {isCreateOpen && (
               <div className="createMenu absolute right-0 top-full mt-2 z-50">
                 <ul className="bg-[#383838] border-[1px] p-2 border-gray-800 rounded-md text-white">
                   <Link to="/upload-video">
-                    <li className="text-[13px] py-2 px-4 hover:bg-[#484848] rounded-md cursor-pointer">Upload Video</li>
+                    <li className="text-[13px] py-2 px-2 hover:bg-[#484848] rounded-md cursor-pointer whitespace-nowrap">
+                      Upload Video
+                    </li>
                   </Link>
                   <Link to="/upload-tweet">
-                    <li className="text-[13px] py-2 px-4 hover:bg-[#484848] rounded-md cursor-pointer">Upload Tweet</li>
+                    <li className="text-[13px] py-2 px-2 hover:bg-[#484848] rounded-md cursor-pointer whitespace-nowrap">
+                      Upload Tweet
+                    </li>
                   </Link>
                 </ul>
               </div>
