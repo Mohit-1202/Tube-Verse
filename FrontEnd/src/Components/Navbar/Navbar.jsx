@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useEffect, useState } from "react";
-import { faBars, faCirclePlay, faMagnifyingGlass, faPlus, } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faCirclePlay, faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from '../Sidebar/Sidebar'
 import { Link } from "react-router";
 import UserContext from "../../Context/User/UserContext";
@@ -10,13 +10,15 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const toggleSidebar = () => setIsOpen(!isOpen);
-  const{user,userDetails} = useContext(UserContext)
-  useEffect(()=>{
+  const {user, userDetails} = useContext(UserContext)
+  
+  useEffect(() => {
     userDetails()
-  },[])
+  }, [])
+  
   return (
-    <div className={`Navbar flex start:p-2 start:mt-2 justify-between`}>
-      <div className="Section-1 start:flex start:space-x-4 mini:space-x-6">
+    <div className={`Navbar flex start:p-2 start:mt-2 justify-between items-center`}>
+      <div className="Section-1 start:flex start:space-x-4 mini:space-x-6 items-center">
         <div className={`hamburger start:mt-[5px] mobile:flex`}>
           <FontAwesomeIcon className="text-white start:text-[20px] mini:text-[25px] cursor-pointer " icon={faBars} onClick={toggleSidebar} />
           <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
@@ -28,10 +30,10 @@ export default function Navbar() {
           </div>
         </Link>
       </div>
-      <div className="flex space-x-2 tab:space-x-[50px] mini:justify-between -mt-[2px]">
+      <div className="flex space-x-2 tab:space-x-[50px] mini:justify-between -mt-[2px] items-center">
         <div className="Section-2">
-          <div className={`SearchIcon bg-[#FF9200] rounded-[50%] w-7 start:mt-[5px] text-center tab:hidden ${isSearchOpen ? "hidden" : ""}`}>
-            <FontAwesomeIcon className="start:text-[15px] mt-[7px] pb-[4px] text-[#030303] cursor-pointer" onClick={() => setIsSearchOpen(!isSearchOpen)} icon={faMagnifyingGlass} />
+          <div className={`SearchIcon bg-[#FF9200] rounded-full w-7 h-7 flex items-center justify-center tab:hidden ${isSearchOpen ? "hidden" : ""}`}>
+            <FontAwesomeIcon className="text-[15px] text-[#030303] cursor-pointer" onClick={() => setIsSearchOpen(!isSearchOpen)} icon={faMagnifyingGlass} />
           </div>
           {isSearchOpen && (
             <>
@@ -55,35 +57,42 @@ export default function Navbar() {
             <input
               type="text"
               placeholder="Search..."
-              className=" p-2 w-[320px] mini:w-[400px] text-white"
+              className="p-2 w-[320px] mini:w-[400px] text-white bg-transparent"
             />
-            <div className="bg-[#3D3D3D] w-8 text-center border-[1px] border-gray-400 rounded-[5px]">
-              <FontAwesomeIcon className="start:text-[13px] mt-[7px] pb-[4px] text-gray-300 cursor-pointer" icon={faMagnifyingGlass} />
+            <div className="bg-[#3D3D3D] w-8 text-center border-[1px] border-gray-400 rounded-[5px] flex items-center justify-center">
+              <FontAwesomeIcon className="text-[13px] text-gray-300 cursor-pointer" icon={faMagnifyingGlass} />
             </div>
           </div>
         </div>
-        <div className="Section-3 flex space-x-[6px] tab:space-x-[20px]">
-          <div className="create bg-[#FF9200] rounded-[50%] tab:w-[80px] tab:rounded-[8px] w-7 start:mt-[5px] text-center mini:pt-1" onClick={() => setIsCreateOpen(!isCreateOpen)}>
-            <p className="hidden tab:inline font-semibold mr-2 text-[16px]  mt-[6px] text-[#030303] cursor-pointer">Create</p>
-            <FontAwesomeIcon className="start:text-[16px] mt-[6px] text-[#030303] cursor-pointer" icon={faPlus} />
+        <div className="Section-3 flex space-x-[6px] tab:space-x-[20px] items-center">
+          <div className="relative">
+            <div 
+              className="create bg-[#FF9200] rounded-full w-7 h-7 flex items-center justify-center tab:w-10 tab:h-10 cursor-pointer"
+              onClick={() => setIsCreateOpen(!isCreateOpen)}
+            >
+              <FontAwesomeIcon className="text-[16px] text-[#030303]" icon={faPlus} />
+            </div>
             {isCreateOpen && (
-              <div className="createMenu">
-                <ul className="bg-[#383838] border-[1px] p-2 border-gray-800 rounded-md text-white mt-2 -ml-8 tab:-ml-2 absolute z-50">
+              <div className="createMenu absolute right-0 top-full mt-2 z-50">
+                <ul className="bg-[#383838] border-[1px] p-2 border-gray-800 rounded-md text-white">
                   <Link to="/upload-video">
-                  <li className="text-[13px] mt-[2px] mb-2 cursor-pointer">Upload Video</li>
+                    <li className="text-[13px] py-2 px-4 hover:bg-[#484848] rounded-md cursor-pointer">Upload Video</li>
                   </Link>
                   <Link to="/upload-tweet">
-                  <li className="text-[13px] cursor-pointer">Upload Tweet</li>
+                    <li className="text-[13px] py-2 px-4 hover:bg-[#484848] rounded-md cursor-pointer">Upload Tweet</li>
                   </Link>
                 </ul>
               </div>
             )}
           </div>
-          <div className="create rounded-[50%] mini:rounded-4xl start:mt-[5px] text-center tab:mr-2">
-              <Link to="/profile">
-              {/* <FontAwesomeIcon className="start:text-[16px] mt-[6px] text-[#030303] cursor-pointer" icon={faUser} /> */}
-              <img className="mini:w-10 start:w-8 start:h-10 mini:h-10 rounded-[50%]" src={user?.avatar} alt="" />
-              </Link>
+          <div className="profile-pic">
+            <Link to="/profile">
+              <img 
+                className="w-8 h-8 mini:w-10 mini:h-10 rounded-full object-cover border-2 border-[#3D3D3D]" 
+                src={user?.avatar || "https://newkgfindia.com/assets/users2.avif"} 
+                alt="Profile" 
+              />
+            </Link>
           </div>
         </div>
       </div>
