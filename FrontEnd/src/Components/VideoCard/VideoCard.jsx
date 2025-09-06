@@ -81,7 +81,7 @@ export default function VideoCard({ video, variant = "default" }) {
               </p>
             )}
           </Link>
-          <p className="text-sm text-gray-400 cursor-pointer hover:text-white mt-1">
+          <p className="text-sm text-gray-400 cursor-pointer hover:text-white ">
             {displayChannel}
           </p>
           <div className="flex justify-between items-center text-sm text-gray-400">

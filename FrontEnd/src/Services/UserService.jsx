@@ -55,7 +55,6 @@ export const Login = async (username, email, password) => {
   }
 };
 
-
 export const Logout = async () => {
   const url = new URL(`${backendUrl}/users/logout`);
   try {
@@ -126,7 +125,6 @@ export const UserDetails = async () => {
       console.log("Caught an error in parsing data from response in user services");
       return false;
     }
-    console.log(data)
     return data;
   } catch (error) {
     console.log("Faced an error in services while trying to get user details", error);
