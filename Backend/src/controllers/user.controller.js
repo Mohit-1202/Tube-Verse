@@ -93,11 +93,6 @@ const loginUser = asyncHandler(async (req, res) => {
     secure: true,
     sameSite: "None",
   };
-  console.log("🔥 Final Response Being Sent:", {
-  user: loggedInUser,
-  accessToken,
-  refreshToken
-});
 
   return res
     .status(200)
