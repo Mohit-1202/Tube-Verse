@@ -25,17 +25,19 @@ export default function VideoCard({ video, variant = "default" }) {
 
   return (
     <div
-      className={`video-container text-white rounded-xl p-2 w-full ${isHorizontal ? "sm:flex sm:gap-4" : ""
-        }`}
+      className={`video-container text-white rounded-xl p-2 w-full ${
+        isHorizontal ? "sm:flex sm:gap-4" : ""
+      }`}
       key={videoId}
     >
       {/* Thumbnail */}
-      <Link to="/watch-video">
+      <Link to={`/watch-video/${videoId}`}>
         <div
-          className={`thumbnail relative overflow-hidden rounded-xl mb-3 sm:mb-0 ${isHorizontal
+          className={`thumbnail relative overflow-hidden rounded-xl mb-3 sm:mb-0 ${
+            isHorizontal
               ? "sm:w-60 sm:h-32 laptop:w-96 laptop:h-56 w-full aspect-video"
               : "aspect-video w-full"
-            }`}
+          }`}
         >
           <img
             src={thumbnail}
@@ -50,10 +52,11 @@ export default function VideoCard({ video, variant = "default" }) {
 
       {/* Info Section */}
       <div
-        className={`video-info ${isHorizontal
+        className={`video-info ${
+          isHorizontal
             ? "sm:mt-0 mt-2 sm:flex sm:flex-col sm:justify-center"
             : "flex gap-3 mt-3"
-          }`}
+        }`}
       >
         {!isHorizontal && (
           <div className="first-section flex-shrink-0">
@@ -70,7 +73,7 @@ export default function VideoCard({ video, variant = "default" }) {
         <div
           className={`mid-section flex-grow ${isHorizontal ? "sm:px-3 px-0" : ""}`}
         >
-          <Link to="/watch-video">
+          <Link to={`/watch-video/${videoId}`}>
             <p className="text-base font-semibold text-white line-clamp-2 cursor-pointer">
               {title}
             </p>

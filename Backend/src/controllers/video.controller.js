@@ -69,21 +69,30 @@ const getUserVideos = asyncHandler(async (req, res) => {
 });
 
 const getAllVideos = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  let pipeline = [
-    {
-      $match: {
-        $or: [
-          { owner: new mongoose.Types.ObjectId(userId) },
-          {
-            $or: [
-              { title: { $regex: query, $options: "i" } },
-              { description: { $regex: query, $options: "i" } },
-            ],
-          },
-        ],
-      },
-    },
+  const { page = 1, limit = 10, query = "", sortBy = "createdAt", sortType = -1, userId } = req.query;
+
+  const matchConditions = [];
+
+  // ✅ Only add owner filter if userId exists and is a valid ObjectId
+  if (userId && mongoose.isValidObjectId(userId)) {
+    matchConditions.push({ owner: new mongoose.Types.ObjectId(userId) });
+  }
+
+  // ✅ Only add query filter if query is provided
+  if (query.trim() !== "") {
+    matchConditions.push({
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+      ],
+    });
+  }
+
+  // If no filters provided, match all
+  const finalMatch = matchConditions.length > 0 ? { $or: matchConditions } : {};
+
+  const pipeline = [
+    { $match: finalMatch },
     {
       $lookup: {
         from: "users",
@@ -102,17 +111,10 @@ const getAllVideos = asyncHandler(async (req, res) => {
         ],
       },
     },
-    {
-      $addFields: {
-        owner: {
-          $first: "$owner",
-        },
-      },
-    },
-    {
-      $sort: { [sortBy || "createdAt"]: sortType ? parseInt(sortType) : -1 },
-    },
+    { $addFields: { owner: { $first: "$owner" } } },
+    { $sort: { [sortBy]: parseInt(sortType) } },
   ];
+
   try {
     const options = {
       page: parseInt(page),
@@ -122,27 +124,16 @@ const getAllVideos = asyncHandler(async (req, res) => {
         docs: "videos",
       },
     };
-    const result = await Video.aggregatePaginate(
-      Video.aggregate(pipeline),
-      options
-    );
-    if (result?.videos?.length === 0) {
-      return res
-        .status(200)
-        .json(new ApiResponse(200, result, "Videos fetched successfully"));
-    }
-    return res
-      .status(200)
-      .json(new ApiResponse(200, result, "Videos fetched successfully"));
+
+    const result = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
+
+    return res.status(200).json(new ApiResponse(200, result, "Videos fetched successfully"));
   } catch (error) {
-    console.error(error.message);
-    return res
-      .status(500)
-      .json(
-        new ApiError(500, {}, "Internal server error in video aggregation")
-      );
+    console.error("Error in getAllVideos:", error.message);
+    return res.status(500).json(new ApiError(500, {}, "Internal server error in video aggregation"));
   }
 });
+
 
 const searchVideos = asyncHandler(async (req, res) => {
   const { query = "", page = 1, limit = 10, sortBy = "createdAt", sortType = -1 } = req.query;
@@ -260,17 +251,49 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
   try {
     const { videoId } = req.params;
+
     if (!isValidObjectId(videoId)) {
       throw new ApiError(400, "Invalid Video Id");
     }
-    const video = await Video.findById(videoId);
-    if (!video) {
-      throw new ApiError(400, "Failed to get video details");
+
+    const video = await Video.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(videoId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullName: 1,
+                avatar: 1,
+                subscribers: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$owner",
+      },
+    ]);
+
+    if (!video || video.length === 0) {
+      throw new ApiError(404, "Video not found");
     }
-    return res
-      .status(200)
-      .json(new ApiResponse(200, video, "Videos found successfully"));
+
+    return res.status(200).json(
+      new ApiResponse(200, video[0], "Video fetched successfully")
+    );
   } catch (error) {
+    console.error("Error in getVideoById:", error.message);
     res.status(501).json(new ApiError(501, "Video not found"));
   }
 });

@@ -1,19 +1,15 @@
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-/* ---------- Helper: Get Cookie ---------- */
 const getCookie = (name) => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-  return null;
+  return parts.length === 2 ? parts.pop().split(";").shift() : null;
 };
 
-/* ---------- Helper: Fetch Wrapper ---------- */
 const customFetch = async (url, options = {}) => {
   try {
     const response = await fetch(url, options);
-
-    const data = await response.json().catch(() => ({})); // avoid crashing if no JSON returned
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       console.error("API Error:", data?.message || response.statusText);
@@ -27,21 +23,31 @@ const customFetch = async (url, options = {}) => {
   }
 };
 
-/* =====================================================
-   1) Get All Videos
-===================================================== */
 export const getVideosService = async ({
   page = 1,
   limit = 10,
   sortBy = "createdAt",
   sortType = -1,
-  userId = "",
-  query = "",
+  userId,
+  query,
 } = {}) => {
   const url = new URL(`${backendUrl}/videos`);
-  const params = { page, limit, sortBy, sortType, userId, query };
 
-  Object.keys(params).forEach((key) => url.searchParams.append(key, params[key]));
+  const params = {
+    page,
+    limit,
+    sortBy,
+    sortType,
+    userId,
+    query,
+  };
+
+  // ✅ Append only non-empty parameters to URL
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== "" && value !== null && value !== undefined) {
+      url.searchParams.append(key, value);
+    }
+  });
 
   const accessToken = getCookie("accessToken");
 
@@ -56,9 +62,6 @@ export const getVideosService = async ({
   return success ? data?.data?.videos || [] : [];
 };
 
-/* =====================================================
-   2) Get Logged-in User's Videos
-===================================================== */
 export const getUserVideosService = async (
   page = 1,
   limit = 10,
@@ -84,9 +87,6 @@ export const getUserVideosService = async (
   return success ? data?.data?.videos || [] : [];
 };
 
-/* =====================================================
-   3) Search Videos
-===================================================== */
 export const searchVideosService = async (query, page = 1, limit = 10) => {
   const url = new URL(`${backendUrl}/videos/search/videos`);
   url.searchParams.append("query", query);
@@ -101,9 +101,7 @@ export const searchVideosService = async (query, page = 1, limit = 10) => {
   return success ? data?.data?.videos || [] : [];
 };
 
-/* =====================================================
-   4) Get Video by ID
-===================================================== */
+// 4. Get a single video by ID
 export const getVideoByIdService = async (videoId) => {
   const accessToken = getCookie("accessToken");
 
@@ -118,9 +116,7 @@ export const getVideoByIdService = async (videoId) => {
   return success ? data?.data || null : null;
 };
 
-/* =====================================================
-   5) Upload a New Video
-===================================================== */
+// 5. Upload new video
 export const uploadVideoService = async (title, description, thumbnail, videoFile) => {
   const formData = new FormData();
   formData.append("title", title);
@@ -142,9 +138,7 @@ export const uploadVideoService = async (title, description, thumbnail, videoFil
   return success ? data : null;
 };
 
-/* =====================================================
-   6) Update Video
-===================================================== */
+// 6. Update a video
 export const updateVideoService = async (videoId, title, description, thumbnail) => {
   const formData = new FormData();
   formData.append("title", title);
@@ -165,9 +159,7 @@ export const updateVideoService = async (videoId, title, description, thumbnail)
   return success ? data?.data || null : null;
 };
 
-/* =====================================================
-   7) Delete Video
-===================================================== */
+// 7. Delete a video
 export const deleteVideoService = async (videoId) => {
   const accessToken = getCookie("accessToken");
 
@@ -182,9 +174,7 @@ export const deleteVideoService = async (videoId) => {
   return success ? data?.data || null : null;
 };
 
-/* =====================================================
-   8) Toggle Publish Status
-===================================================== */
+// 8. Toggle publish status
 export const togglePublishStatusService = async (videoId) => {
   const accessToken = getCookie("accessToken");
 

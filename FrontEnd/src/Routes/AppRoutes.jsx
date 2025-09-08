@@ -33,7 +33,7 @@ export default function AppRoutes() {
         <Route path="/liked-videos" element={<Liked_Video_Page/>} />
         <Route path="/liked-tweets" element={<Liked_Tweet_Page/>} />
         <Route path="/watch-history" element={<Watch_History_Page/>} />
-        <Route path="/watch-video" element={<Watch_Video_Page/>} />
+        <Route path="/watch-video/:id" element={<Watch_Video_Page />} />
         <Route path="/subscriptions" element={<Subscription_Page/>} />
         <Route path="/subscriptions" element={<Subscription_Page/>} />
         <Route path="/upload-video" element={<Upload_Video_Page/>} />
