@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { getVideoByIdService } from "../Services/VideoService";
+import VideoSkeleton from "../Components/Skeletons/VideoSkeleton";
 import LoaderContext from "../Context/Loader/LoaderContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp as solidThumbsUp, faShare } from "@fortawesome/free-solid-svg-icons";
@@ -24,7 +25,7 @@ export default function Watch_Video_page() {
   }, [id]);
 
   if (!video) {
-    return <p className="text-white p-5">Loading video...</p>;
+    return <p className=""><VideoSkeleton/></p>;
   }
 
   return (
