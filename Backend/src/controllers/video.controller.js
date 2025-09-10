@@ -134,7 +134,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
   }
 });
 
-
 const searchVideos = asyncHandler(async (req, res) => {
   const { query = "", page = 1, limit = 10, sortBy = "createdAt", sortType = -1 } = req.query;
 
@@ -256,45 +255,19 @@ const getVideoById = asyncHandler(async (req, res) => {
       return res.status(400).json(new ApiError(400, "Invalid Video Id"));
     }
 
-    const video = await Video.aggregate([
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(videoId),
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          as: "owner",
-          pipeline: [
-            {
-              $project: {
-                _id: 1,
-                username: 1,
-                fullName: 1,
-                avatar: 1,
-                subscribers: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $addFields: {
-          owner: { $first: "$owner" },
-        },
-      },
-    ]);
+    const video = await Video.findByIdAndUpdate(
+      videoId,
+      { $inc: { views: 1 } },
+      { new: true }
+    ).populate("owner", "_id username fullName avatar subscribers");
 
-    if (!video || video.length === 0) {
+    if (!video) {
       return res.status(404).json(new ApiError(404, "Video not found"));
     }
 
-    return res.status(200).json(
-      new ApiResponse(200, video[0], "Video fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, video, "Video fetched and views incremented successfully"));
   } catch (error) {
     console.error("Error in getVideoById:", error.message);
     return res
@@ -302,7 +275,6 @@ const getVideoById = asyncHandler(async (req, res) => {
       .json(new ApiError(500, {}, "Internal server error while fetching video"));
   }
 });
-
 
 const updateVideo = asyncHandler(async (req, res) => {
   try {
