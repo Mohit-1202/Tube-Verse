@@ -168,11 +168,9 @@ export default function Watch_Video_page() {
             </div>
         </div>
         <div className="second-section p-3">
-              {/* Related Videos Section */}
               <div className="related-videos mt-5">
                 <h2 className="text-white text-[18px] font-bold mb-5">Related Videos</h2>
 
-                {/* Video Card 1 */}
                 <div className="flex mb-4 cursor-pointer">
                     <img
                         className="w-40 h-24 object-cover rounded-lg"

@@ -15,6 +15,7 @@ import Loginpage from "../Pages/Loginpage";
 import RegisterPage from "../Pages/Registerpage";
 import ProtectedRoute from "../Components/ProtectedRoute/ProtectedRoute";
 import Edit_Account_Page from "../Pages/Edit_Account_Page";
+import Manage_Video_Page from "../Pages/Manage_Video_Page";
 
 
 export default function AppRoutes() {
@@ -39,6 +40,7 @@ export default function AppRoutes() {
         <Route path="/upload-video" element={<Upload_Video_Page/>} />
         <Route path="/upload-tweet" element={<Upload_Tweet_Page/>} />
         <Route path="/edit-account" element={<Edit_Account_Page/>} />
+        <Route path="/manage-videos" element={<Manage_Video_Page/>} />
         </Route>
       </Routes>
     </div>

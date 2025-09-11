@@ -18,7 +18,7 @@ export default function Your_Channel_Page() {
   };
 
   const handleManageVideos = () => {
-    navigate("/your-videos");
+    navigate("/manage-videos");
   };
 
   const formatDate = (dateString) => {

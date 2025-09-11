@@ -73,12 +73,10 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   const matchConditions = [];
 
-  // ✅ Only add owner filter if userId exists and is a valid ObjectId
   if (userId && mongoose.isValidObjectId(userId)) {
     matchConditions.push({ owner: new mongoose.Types.ObjectId(userId) });
   }
 
-  // ✅ Only add query filter if query is provided
   if (query.trim() !== "") {
     matchConditions.push({
       $or: [
@@ -88,7 +86,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
     });
   }
 
-  // If no filters provided, match all
   const finalMatch = matchConditions.length > 0 ? { $or: matchConditions } : {};
 
   const pipeline = [

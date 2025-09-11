@@ -1,10 +1,13 @@
 /* eslint-disable react/prop-types */
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
 import VideoContext from "./VideoContext";
 import {
   getVideosService,
   getUserVideosService,
   uploadVideoService,
+  updateVideoService,
+  deleteVideoService,
+  togglePublishStatusService
 } from "../../Services/VideoService";
 import LoaderContext from "../Loader/LoaderContext";
 
@@ -15,7 +18,7 @@ const VideoState = ({ children }) => {
   const { startLoading, stopLoading } = useContext(LoaderContext);
 
   // Fetch all videos
-  const getVideos = async () => {
+  const getVideos = useCallback(async () => {
     startLoading();
     try {
       const data = await getVideosService();
@@ -26,10 +29,9 @@ const VideoState = ({ children }) => {
     } finally {
       stopLoading();
     }
-  };
+  }, [startLoading, stopLoading]);
 
-  // Fetch videos uploaded by the logged-in user
-  const getYourVideos = async () => {
+  const getYourVideos = useCallback(async () => {
     startLoading();
     try {
       const data = await getUserVideosService();
@@ -40,10 +42,9 @@ const VideoState = ({ children }) => {
     } finally {
       stopLoading();
     }
-  };
+  }, [startLoading, stopLoading]);
 
-  // Upload a new video
-  const uploadVideo = async (title, description, thumbnail, videoFile) => {
+  const uploadVideo = useCallback(async (title, description, thumbnail, videoFile) => {
     startLoading();
     try {
       const response = await uploadVideoService(title, description, thumbnail, videoFile);
@@ -53,7 +54,6 @@ const VideoState = ({ children }) => {
         return false;
       }
 
-      // Prepend newly uploaded video to user videos
       setYourVideo((prev) => [response.data.video, ...prev]);
       return true;
     } catch (error) {
@@ -62,7 +62,90 @@ const VideoState = ({ children }) => {
     } finally {
       stopLoading();
     }
-  };
+  }, [startLoading, stopLoading]);
+
+  const updateVideo = useCallback(async (videoId, title, description, thumbnail) => {
+    startLoading();
+    try {
+      const response = await updateVideoService(videoId, title, description, thumbnail);
+
+      if (!response?.success) {
+        console.error("Failed to update video in VideoState");
+        return false;
+      }
+
+      // Update the video in yourVideo state
+      setYourVideo(prev => prev.map(video => 
+        video._id === videoId ? { ...video, title, description, thumbnail: response.thumbnail || thumbnail } : video
+      ));
+
+      // Also update in videos state if it exists there
+      setVideos(prev => prev.map(video => 
+        video._id === videoId ? { ...video, title, description, thumbnail: response.thumbnail || thumbnail } : video
+      ));
+
+      return true;
+    } catch (error) {
+      console.error("Error updating video in VideoState:", error);
+      return false;
+    } finally {
+      stopLoading();
+    }
+  }, [startLoading, stopLoading]);
+
+  const deleteVideo = useCallback(async (videoId) => {
+    startLoading();
+    try {
+      const response = await deleteVideoService(videoId);
+
+      if (!response?.success) {
+        console.error("Failed to delete video in VideoState");
+        return false;
+      }
+
+      // Remove the video from yourVideo state
+      setYourVideo(prev => prev.filter(video => video._id !== videoId));
+
+      // Also remove from videos state if it exists there
+      setVideos(prev => prev.filter(video => video._id !== videoId));
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting video in VideoState:", error);
+      return false;
+    } finally {
+      stopLoading();
+    }
+  }, [startLoading, stopLoading]);
+
+  const togglePublishStatus = useCallback(async (videoId) => {
+    startLoading();
+    try {
+      const response = await togglePublishStatusService(videoId);
+
+      if (!response?.success) {
+        console.error("Failed to toggle publish status in VideoState");
+        return false;
+      }
+
+      // Update the video's publish status in yourVideo state
+      setYourVideo(prev => prev.map(video => 
+        video._id === videoId ? { ...video, isPublished: !video.isPublished } : video
+      ));
+
+      // Also update in videos state if it exists there
+      setVideos(prev => prev.map(video => 
+        video._id === videoId ? { ...video, isPublished: !video.isPublished } : video
+      ));
+
+      return true;
+    } catch (error) {
+      console.error("Error toggling publish status in VideoState:", error);
+      return false;
+    } finally {
+      stopLoading();
+    }
+  }, [startLoading, stopLoading]);
 
   return (
     <VideoContext.Provider
@@ -72,6 +155,9 @@ const VideoState = ({ children }) => {
         getVideos,
         getYourVideos,
         uploadVideo,
+        updateVideo,
+        deleteVideo,
+        togglePublishStatus
       }}
     >
       {children}
