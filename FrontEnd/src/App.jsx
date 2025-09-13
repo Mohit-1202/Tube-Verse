@@ -7,6 +7,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useEffect, useState } from 'react';
 import UserState from './Context/User/UserState.jsx';
 import LoaderState from './Context/Loader/LoaderState.jsx';
+import LikeState from './Context/Like/LikeState.jsx';
 
 const LayoutWithNavbar = () => {
   const location = useLocation();
@@ -30,9 +31,11 @@ function App() {
     <LoaderState>
     <UserState>
       <VideoState>
+        <LikeState>
         <BrowserRouter>
           <LayoutWithNavbar />
         </BrowserRouter>
+        </LikeState>
       </VideoState>
     </UserState>
     </LoaderState>

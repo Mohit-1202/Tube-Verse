@@ -1,27 +1,6 @@
+import customFetch from "../Utils/customFetch";
+import getCookie from "../Utils/getCookie";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  return parts.length === 2 ? parts.pop().split(";").shift() : null;
-};
-
-const customFetch = async (url, options = {}) => {
-  try {
-    const response = await fetch(url, options);
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      console.error("API Error:", data?.message || response.statusText);
-      return { success: false, data };
-    }
-
-    return { success: true, data };
-  } catch (error) {
-    console.error("Network or Fetch Error:", error);
-    return { success: false, data: null };
-  }
-};
 
 export const getVideosService = async ({
   page = 1,
@@ -42,7 +21,6 @@ export const getVideosService = async ({
     query,
   };
 
-  // ✅ Append only non-empty parameters to URL
   Object.entries(params).forEach(([key, value]) => {
     if (value !== "" && value !== null && value !== undefined) {
       url.searchParams.append(key, value);
@@ -140,23 +118,40 @@ export const uploadVideoService = async (title, description, thumbnail, videoFil
 
 // 6. Update a video
 export const updateVideoService = async (videoId, title, description, thumbnail) => {
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("description", description);
-  formData.append("thumbnail", thumbnail);
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
 
-  const accessToken = getCookie("accessToken");
+    // Only append thumbnail if a new one is provided
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
+    }
 
-  const { success, data } = await customFetch(`${backendUrl}/videos/${videoId}`, {
-    method: "PATCH",
-    body: formData,
-    credentials: "include",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+    const accessToken = getCookie("accessToken");
 
-  return success ? data?.data || null : null;
+    const response = await customFetch(`${backendUrl}/videos/${videoId}`, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    // Ensure we return a consistent response
+    return {
+      success: response?.success || false,
+      data: response?.data || null,
+      message: response?.message || "Failed to update video",
+    };
+  } catch (error) {
+    console.error("Error updating video:", error);
+    return {
+      success: false,
+      message: "Network error while updating video",
+    };
+  }
 };
 
 // 7. Delete a video

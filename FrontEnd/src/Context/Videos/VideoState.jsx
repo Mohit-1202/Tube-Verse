@@ -17,7 +17,6 @@ const VideoState = ({ children }) => {
 
   const { startLoading, stopLoading } = useContext(LoaderContext);
 
-  // Fetch all videos
   const getVideos = useCallback(async () => {
     startLoading();
     try {
@@ -74,17 +73,14 @@ const VideoState = ({ children }) => {
         return false;
       }
 
-      // Update the video in yourVideo state
       setYourVideo(prev => prev.map(video => 
-        video._id === videoId ? { ...video, title, description, thumbnail: response.thumbnail || thumbnail } : video
+        video._id === videoId ? { ...video, title, description, thumbnail: response.data.data.thumbnail  || thumbnail } : video
       ));
 
-      // Also update in videos state if it exists there
       setVideos(prev => prev.map(video => 
-        video._id === videoId ? { ...video, title, description, thumbnail: response.thumbnail || thumbnail } : video
+        video._id === videoId ? { ...video, title, description, thumbnail: response.data.data.thumbnail || thumbnail } : video
       ));
-
-      return true;
+      return response;
     } catch (error) {
       console.error("Error updating video in VideoState:", error);
       return false;
@@ -103,10 +99,8 @@ const VideoState = ({ children }) => {
         return false;
       }
 
-      // Remove the video from yourVideo state
       setYourVideo(prev => prev.filter(video => video._id !== videoId));
 
-      // Also remove from videos state if it exists there
       setVideos(prev => prev.filter(video => video._id !== videoId));
 
       return true;

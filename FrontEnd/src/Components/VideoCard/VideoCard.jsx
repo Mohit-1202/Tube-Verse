@@ -19,24 +19,27 @@ export default function VideoCard({ video, variant = "default" }) {
   const isHorizontal = variant === "horizontal";
 
   const videoId = id || _id;
-  const displayChannel = channel || owner?.username || owner?.fullName || "Unknown Channel";
+  const displayChannel =
+    channel || owner?.username || owner?.fullName || "Unknown Channel";
   const displayTimestamp = timestamp || new Date(createdAt).toLocaleDateString();
   const displayDuration = formatDuration(duration);
+  const ownerAvatar =
+    owner?.avatar || video?.avatar || "https://newkgfindia.com/assets/users2.avif";
 
   return (
     <div
       className={`video-container text-white rounded-xl p-2 w-full ${
-        isHorizontal ? "sm:flex sm:gap-4" : ""
+        isHorizontal ? "flex items-start gap-4 mb-4" : ""
       }`}
       key={videoId}
     >
       {/* Thumbnail */}
       <Link to={`/watch-video/${videoId}`}>
         <div
-          className={`thumbnail relative overflow-hidden rounded-xl mb-3 sm:mb-0 ${
+          className={`thumbnail relative overflow-hidden rounded-xl ${
             isHorizontal
-              ? "sm:w-60 sm:h-32 laptop:w-96 laptop:h-56 w-full aspect-video"
-              : "aspect-video w-full"
+              ? "w-52 h-32 sm:w-64 sm:h-36"
+              : "aspect-video w-full mb-3"
           }`}
         >
           <img
@@ -44,37 +47,17 @@ export default function VideoCard({ video, variant = "default" }) {
             alt="thumbnail"
             className="w-full h-full object-cover"
           />
-          <span className="absolute bottom-2 right-2 bg-black/40 px-1 py-[5px] text-xs rounded">
+          <span className="absolute bottom-2 right-2 bg-black/60 px-1 py-[3px] text-xs rounded">
             {displayDuration}
           </span>
         </div>
       </Link>
 
       {/* Info Section */}
-      <div
-        className={`video-info ${
-          isHorizontal
-            ? "sm:mt-0 mt-2 sm:flex sm:flex-col sm:justify-center"
-            : "flex gap-3 mt-3"
-        }`}
-      >
-        {!isHorizontal && (
-          <div className="first-section flex-shrink-0">
-            <img
-              className="rounded-full w-10 h-10 cursor-pointer"
-              src={
-                owner?.avatar || video?.avatar || "https://newkgfindia.com/assets/users2.avif"
-              }
-              alt="user avatar"
-            />
-          </div>
-        )}
-
-        <div
-          className={`mid-section flex-grow ${isHorizontal ? "sm:px-3 px-0" : ""}`}
-        >
+      <div className="flex flex-col justify-between flex-1">
+        <div>
           <Link to={`/watch-video/${videoId}`}>
-            <p className="text-base font-semibold text-white line-clamp-2 cursor-pointer">
+            <p className="text-lg font-semibold text-white line-clamp-2 hover:text-gray-300">
               {title}
             </p>
 
@@ -84,10 +67,24 @@ export default function VideoCard({ video, variant = "default" }) {
               </p>
             )}
           </Link>
-          <p className="text-sm text-gray-400 mt-1 cursor-pointer hover:text-white">
-            {displayChannel}
-          </p>
-          <div className="flex justify-between items-center text-sm text-gray-400 mt-1">
+        </div>
+
+        {/* Owner + Metadata */}
+        <div className="mt-2 flex items-center justify-between">
+          {/* Left: Owner Avatar + Channel Name */}
+          <div className="flex items-center gap-2">
+            <img
+              className="w-8 h-8 rounded-full object-cover cursor-pointer"
+              src={ownerAvatar}
+              alt={displayChannel}
+            />
+            <p className="text-sm text-gray-400 hover:text-white cursor-pointer">
+              {displayChannel}
+            </p>
+          </div>
+
+          {/* Right: Views + Date */}
+          <div className="flex flex-col items-end text-sm text-gray-400">
             <p>{views || 0} Views</p>
             <p>{displayTimestamp}</p>
           </div>
