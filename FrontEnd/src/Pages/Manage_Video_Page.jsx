@@ -6,6 +6,7 @@ import VideoContext from "../Context/Videos/VideoContext";
 import LoaderContext from "../Context/Loader/LoaderContext";
 import VideoSkeleton from "../Components/Skeletons/VideoSkeleton";
 import Alert from "../Components/Alert/Alert";
+import ConfirmModal from "../Components/ConfirmModal/ConfirmModal";
 
 export default function Manage_Video_Page() {
   const { yourVideo, getYourVideos, updateVideo, deleteVideo, togglePublishStatus } = useContext(VideoContext);
@@ -83,32 +84,32 @@ export default function Manage_Video_Page() {
     }
   };
 
- const handleEditSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    startLoading();
-    const response = await updateVideo(
-      editingVideo._id,
-      editForm.title,
-      editForm.description,
-      thumbnailFile
-    );
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      startLoading();
+      const response = await updateVideo(
+        editingVideo._id,
+        editForm.title,
+        editForm.description,
+        thumbnailFile
+      );
 
-    if (response.success) {
-      setSuccess("Video updated successfully!");
-      closeEditModal();
-    } else {
-      setError(response.message || "Failed to update video.");
+      if (response.success) {
+        setSuccess("Video updated successfully!");
+        closeEditModal();
+      } else {
+        setError(response.message || "Failed to update video.");
+      }
+    } catch (err) {
+      console.error("Error updating video:", err);
+      setError("Failed to update video. Please try again.");
+    } finally {
+      stopLoading();
     }
-  } catch (err) {
-    console.error("Error updating video:", err);
-    setError("Failed to update video. Please try again.");
-  } finally {
-    stopLoading();
-  }
-};
+  };
 
-
+  // ====== Delete Modal Handlers ======
   const openDeleteModal = (video) => {
     setVideoToDelete(video);
     setDeleteModalOpen(true);
@@ -254,32 +255,16 @@ export default function Manage_Video_Page() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#383838] rounded-xl w-full max-w-sm p-6 text-center">
-            <h2 className="text-xl font-bold text-white mb-4">Delete Video</h2>
-            <p className="text-gray-300 mb-6">
-              Are you sure you want to delete{" "}
-              <span className="font-semibold text-white">{videoToDelete?.title}</span>? This action cannot be undone.
-            </p>
-            <div className="flex justify-center space-x-3">
-              <button
-                onClick={closeDeleteModal}
-                className="px-4 py-2 text-white rounded bg-[#383838] hover:bg-[#484848] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-semibold"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Modal (Reusable) */}
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        title="Delete Video"
+        message={`Are you sure you want to delete "${videoToDelete?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={closeDeleteModal}
+      />
 
       {/* Page Header */}
       <div className="mb-8">

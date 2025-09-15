@@ -251,60 +251,169 @@ const getVideoById = asyncHandler(async (req, res) => {
     return res.status(400).json(new ApiError(400, "Invalid Video Id"));
   }
 
+  const userId = req.user?._id; // logged-in user
+
   const video = await Video.aggregate([
+    // Match the video
     { $match: { _id: new mongoose.Types.ObjectId(videoId) } },
+
+    // Lookup owner info
     {
       $lookup: {
         from: "users",
         localField: "owner",
         foreignField: "_id",
-        as: "owner"
-      }
+        as: "owner",
+      },
     },
     { $unwind: "$owner" },
+
+    // Lookup likes for video
     {
       $lookup: {
         from: "likes",
         localField: "_id",
         foreignField: "video",
-        as: "likes"
-      }
+        as: "likes",
+      },
     },
+
+    // Lookup comments
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "video",
+        as: "comments",
+      },
+    },
+
+    // Lookup comment owners
+    {
+      $lookup: {
+        from: "users",
+        localField: "comments.owner",
+        foreignField: "_id",
+        as: "commentOwners",
+      },
+    },
+
+    // Lookup likes for comments
+    {
+      $lookup: {
+        from: "likes",
+        localField: "comments._id",
+        foreignField: "comment",
+        as: "commentLikes",
+      },
+    },
+
+    // Add computed fields: likeCount, isLiked, totalComments, and enriched comments
     {
       $addFields: {
-        likeCount: { $size: "$likes" }
-      }
+        likeCount: { $size: "$likes" },
+        totalComments: { $size: "$comments" },
+        isLiked: {
+          $in: [userId, "$likes.likedBy"],
+        },
+        comments: {
+  $map: {
+    input: "$comments",
+    as: "comment",
+    in: {
+      _id: "$$comment._id",
+      content: "$$comment.content",
+      createdAt: "$$comment.createdAt",
+      owner: {
+        $let: {
+          vars: {
+            ownerObj: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: "$commentOwners",
+                    as: "u",
+                    cond: { $eq: ["$$u._id", "$$comment.owner"] },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+          in: {
+            _id: "$$ownerObj._id",
+            username: "$$ownerObj.username",
+            avatar: "$$ownerObj.avatar",
+          },
+        },
+      },
+      likeCount: {
+        $size: {
+          $filter: {
+            input: "$commentLikes",
+            as: "cl",
+            cond: { $eq: ["$$cl.comment", "$$comment._id"] },
+          },
+        },
+      },
+      isLiked: {
+        $in: [
+          userId,
+          {
+            $map: {
+              input: {
+                $filter: {
+                  input: "$commentLikes",
+                  as: "cl",
+                  cond: { $eq: ["$$cl.comment", "$$comment._id"] },
+                },
+              },
+              as: "cl",
+              in: "$$cl.likedBy",
+            },
+          },
+        ],
+      },
     },
+  },
+},
+
+      },
+    },
+
+    // Project only needed fields
     {
       $project: {
         title: 1,
         description: 1,
-        thumbnail: 1,
         videoFile: 1,
+        thumbnail: 1,
         views: 1,
+        likeCount: 1,
+        totalComments: 1,
+        isLiked: 1,
         createdAt: 1,
         updatedAt: 1,
         owner: {
           _id: 1,
           username: 1,
-          fullName: 1,
           avatar: 1,
-          subscribers: 1
+          subscribers: 1,
         },
-        likeCount: 1
-      }
-    }
+        comments: 1,
+      },
+    },
   ]);
 
   if (!video || video.length === 0) {
     return res.status(404).json(new ApiError(404, "Video not found"));
   }
 
+  // Return first (and only) matched video
   return res
     .status(200)
     .json(new ApiResponse(200, video[0], "Video fetched successfully"));
 });
-
 
 const updateVideo = asyncHandler(async (req, res) => {
   try {

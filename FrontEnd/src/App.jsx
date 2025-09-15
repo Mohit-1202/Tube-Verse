@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import UserState from './Context/User/UserState.jsx';
 import LoaderState from './Context/Loader/LoaderState.jsx';
 import LikeState from './Context/Like/LikeState.jsx';
+import CommentState from './Context/Comment/CommentState.jsx';
 
 const LayoutWithNavbar = () => {
   const location = useLocation();
@@ -31,11 +32,13 @@ function App() {
     <LoaderState>
     <UserState>
       <VideoState>
+        <CommentState>
         <LikeState>
         <BrowserRouter>
           <LayoutWithNavbar />
         </BrowserRouter>
         </LikeState>
+        </CommentState>
       </VideoState>
     </UserState>
     </LoaderState>
