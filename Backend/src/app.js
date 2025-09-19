@@ -29,18 +29,11 @@ console.log("Allowed CORS origins:", allowedOrigins);
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) {
-      console.log("Request with no origin received");
-      return callback(null, true);
-    }
-    
-    console.log(`Incoming request from origin: ${origin}`);
+    if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin)) {
-      console.log(`Origin ${origin} is allowed`);
-      callback(null, true);
+      callback(null, origin);
     } else {
-      console.warn(`Origin ${origin} is not allowed by CORS`);
       callback(new Error("Not allowed by CORS"));
     }
   },

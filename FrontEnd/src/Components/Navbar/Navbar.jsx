@@ -17,7 +17,7 @@ export default function Navbar() {
   }, [])
   
   return (
-    <div className={`Navbar flex start:p-2 start:mt-2 justify-between items-center`}>
+    <div className={`Navbar flex start:p-2 start:mt-2 justify-between items-center bg-[#212121]`}>
       <div className="Section-1 start:flex start:space-x-4 mini:space-x-6 items-center">
         <div className={`hamburger start:mt-[5px] mobile:flex`}>
           <FontAwesomeIcon className="text-white start:text-[20px] mini:text-[25px] cursor-pointer " icon={faBars} onClick={toggleSidebar} />

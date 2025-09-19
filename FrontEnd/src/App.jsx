@@ -9,6 +9,7 @@ import UserState from './Context/User/UserState.jsx';
 import LoaderState from './Context/Loader/LoaderState.jsx';
 import LikeState from './Context/Like/LikeState.jsx';
 import CommentState from './Context/Comment/CommentState.jsx';
+import DashboardState from './Context/Dashboard/DashboardState.jsx';
 
 const LayoutWithNavbar = () => {
   const location = useLocation();
@@ -34,9 +35,11 @@ function App() {
       <VideoState>
         <CommentState>
         <LikeState>
+          <DashboardState>
         <BrowserRouter>
           <LayoutWithNavbar />
         </BrowserRouter>
+          </DashboardState>
         </LikeState>
         </CommentState>
       </VideoState>
